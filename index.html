@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Little Surprise For You</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #ffd1dc, #ffe6f0);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+    .card {
+      background: white;
+      padding: 30px 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 360px;
+      width: 100%;
+    }
+    h2 { color: #d6336c; margin-bottom: 8px; }
+    p { color: #666; font-size: 15px; margin-top: 0; }
+    .slot-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 25px 0;
+    }
+    .slot {
+      width: 65px;
+      height: 65px;
+      border: 2px dashed #ff99c8;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+      color: #d6336c;
+      background: #fff5f8;
+    }
+    .letters {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .btn {
+      width: 55px;
+      height: 55px;
+      border: none;
+      border-radius: 12px;
+      background: #ff6584;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(255, 101, 132, 0.4);
+      transition: transform 0.1s, background 0.2s;
+    }
+    .btn:active { transform: scale(0.95); }
+    .btn:disabled { background: #ffd6e0; cursor: not-allowed; box-shadow: none; }
+    .action-btn {
+      background: #f1f3f5;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #666;
+    }
+    #reveal {
+      display: none;
+      animation: pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes pop {
+      0% { transform: scale(0.6); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .balloon {
+      position: fixed;
+      bottom: -100px;
+      font-size: 40px;
+      animation: floatUp 4s ease-in forwards;
+      pointer-events: none;
+    }
+    @keyframes floatUp {
+      0% { bottom: -100px; opacity: 1; }
+      100% { bottom: 110vh; opacity: 0.9; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="puzzleBox">
+    <h2>Tap the letters in order! 💕</h2>
+    <p>Spell out the secret word:</p>
+
+    <div class="slot-container">
+      <div class="slot" id="s0">?</div>
+      <div class="slot" id="s1">?</div>
+      <div class="slot" id="s2">?</div>
+      <div class="slot" id="s3">?</div>
+    </div>
+
+    <!-- Scrambled Letters -->
+    <div class="letters" id="choices">
+      <button class="btn" onclick="pick('S', this)">S</button>
+      <button class="btn" onclick="pick('K', this)">K</button>
+      <button class="btn" onclick="pick('I', this)">I</button>
+      <button class="btn" onclick="pick('S', this)">S</button>
+    </div>
+
+    <button class="action-btn" onclick="resetPuzzle()">Clear</button>
+  </div>
+
+  <div class="card" id="reveal">
+    <div style="font-size: 60px; margin-bottom: 10px;">💋✨🎈</div>
+    <h1 style="color: #e63946; margin: 0 0 10px 0; font-size: 32px;">I Kiss You!</h1>
+    <p style="font-size: 18px; color: #555;">😘 Sending you lots of love and sweet kisses! 💖</p>
+  </div>
+
+  <script>
+    const answer = ['K', 'I', 'S', 'S'];
+    let entered = [];
+    let clickedButtons = [];
+
+    function pick(letter, btn) {
+      if (entered.length < 4) {
+        entered.push(letter);
+        clickedButtons.push(btn);
+        btn.disabled = true;
+        document.getElementById('s' + (entered.length - 1)).innerText = letter;
+
+        if (entered.length === 4) {
+          if (entered.join('') === answer.join('')) {
+            setTimeout(showSurprise, 300);
+          } else {
+            setTimeout(resetPuzzle, 600);
+          }
+        }
+      }
+    }
+
+    function resetPuzzle() {
+      entered = [];
+      clickedButtons.forEach(b => b.disabled = false);
+      clickedButtons = [];
+      for (let i = 0; i < 4; i++) {
+        document.getElementById('s' + i).innerText = '?';
+      }
+    }
+
+    function showSurprise() {
+      document.getElementById('puzzleBox').style.display = 'none';
+      document.getElementById('reveal').style.display = 'block';
+      triggerBalloons();
+    }
+
+    function triggerBalloons() {
+      const items = ['🎈', '💖', '💋', '🎈', '✨', '🎈'];
+      for (let i = 0; i < 25; i++) {
+        setTimeout(() => {
+          const b = document.createElement('div');
+          b.className = 'balloon';
+          b.innerText = items[Math.floor(Math.random() * items.length)];
+          b.style.left = Math.random() * 85 + 5 + 'vw';
+          b.style.animationDuration = (3 + Math.random() * 2) + 's';
+          document.body.appendChild(b);
+          setTimeout(() => b.remove(), 5000);
+        }, i * 150);
+      }
+    }
+  </script>
+</body>
+</html>
